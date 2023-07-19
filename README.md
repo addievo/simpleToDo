@@ -1,6 +1,6 @@
 # Todo List
 
-This is a simple Todo List application built with HTML, CSS, and JavaScript. It allows users to manage their tasks efficiently. The functionalities include adding new tasks, marking tasks as completed, clearing completed tasks, and viewing the number of uncompleted tasks.
+This is a simple Todo List application built with HTML, CSS, and JavaScript. It allows users to manage their tasks efficiently. The functionalities include adding new tasks, marking tasks as completed, clearing completed tasks, viewing the number of uncompleted tasks, and saving tasks between sessions.
 
 ## Features
 
@@ -12,11 +12,12 @@ This is a simple Todo List application built with HTML, CSS, and JavaScript. It 
 
 4. **Task Counter:** The application maintains a counter that displays the number of uncompleted tasks left.
 
+5. **Saving Tasks Between Sessions:** The application saves your tasks in your browser's local storage. This means you can close the tab or the browser, and your tasks will still be there when you come back. However, the tasks are not shared between different browsers or devices, and they will be lost if you clear your browser's local storage.
+
 ## Setup
 
-To run this project, simply download the `index.html` file and open it in any web browser. 
+To run this project, simply download the `index.html` file and open it in any web browser.
 A live version of this website can be found at [Live Website](https://adityav.au/simpleToDo/)
-
 
 ## License
 
