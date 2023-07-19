@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo List</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            font-family: "Helvetica Neue", sans-serif;
+            color: plum;
+        }
+
+        #taskCounter {
+            text-align: right;
+            margin-right: 20px;
+        }
+
+        #todoInput {
+            width: 100%;
+            padding: 10px 20px;
+            margin: 5px 0;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        #todoList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #todoList li {
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        #todoList li label {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px 20px;
+            margin: 5px 0;
+            background-color: #FF6347;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #FF4500;
+        }
+
+        #todoList li input[type=checkbox] {
+            display: none;
+        }
+
+        #todoList li input[type=checkbox] + label::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        #todoList li input[type=checkbox]:checked + label::before {
+            background: radial-gradient(circle, #008000 1px, #fff 1px);
+            border: 2px solid #008000;
+        }
+    </style>
+</head>
+<body>
+    <h1>todos</h1>
+    <p id="taskCounter"></p>
+    <input id="todoInput" type="text" placeholder="What needs to be done?" onkeydown="if (event.keyCode === 13) newTodo()">
+    <ul id="todoList"></ul>
+    <button onclick="clearCompleted()">Clear Completed</button>
+
+    <script>
+        function newTodo() {
+            var inputValue = document.getElementById("todoInput").value;
+
+            if (inputValue === '') {
+                alert("Write something!");
+            } else {
+                var li = document.createElement("li");
+                li.style.listStyleType = "none";
+
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = 'task-' + new Date().getTime(); // Generate a unique ID
+                checkbox.onchange = function() {
+                    this.nextSibling.style.textDecoration = this.checked ? "line-through" : "none";
+                    updateTaskCounter();
+                };
+
+                var label = document.createElement("label");
+                label.innerHTML = inputValue;
+                label.setAttribute('for', checkbox.id); // Associate label with checkbox using the ID
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+
+                document.getElementById("todoList").appendChild(li);
+                document.getElementById("todoInput").value = "";
+                updateTaskCounter();
+            }
+        }
+
+        function clearCompleted() {
+            var list = document.getElementById('todoList');
+            var items = list.getElementsByTagName("li");
+            for(var i = 0; i < items.length; i++) {
+                if(items[i].firstChild.checked) {
+                    list.removeChild(items[i]);
+                    i--;
+                }
+            }
+            updateTaskCounter();
+        }
+
+        function updateTaskCounter() {
+        var list = document.getElementById('todoList');
+        var items = list.getElementsByTagName("li");
+        var uncheckedCount = 0;
+        for(var i = 0; i < items.length; i++) {
+            if(!items[i].firstChild.checked) {
+                uncheckedCount++;
+            }
+        }
+        var itemText = uncheckedCount === 1 ? "item" : "items";
+        document.getElementById("taskCounter").innerText = uncheckedCount + " " + itemText + " left";
+    }
+
+    updateTaskCounter();
+    </script>
+</body>
+</html>
