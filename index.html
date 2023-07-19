@@ -93,62 +93,111 @@
     <button onclick="clearCompleted()">Clear Completed</button>
 
     <script>
-        function newTodo() {
-            var inputValue = document.getElementById("todoInput").value;
+function newTodo() {
+    var inputValue = document.getElementById("todoInput").value;
+    if (inputValue === '') {
+        alert("Write something!");
+    } else {
+        var li = document.createElement("li");
+        li.style.listStyleType = "none";
 
-            if (inputValue === '') {
-                alert("Write something!");
-            } else {
-                var li = document.createElement("li");
-                li.style.listStyleType = "none";
-
-                var checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.id = 'task-' + new Date().getTime(); // Generate a unique ID
-                checkbox.onchange = function() {
-                    this.nextSibling.style.textDecoration = this.checked ? "line-through" : "none";
-                    updateTaskCounter();
-                };
-
-                var label = document.createElement("label");
-                label.innerHTML = inputValue;
-                label.setAttribute('for', checkbox.id); // Associate label with checkbox using the ID
-
-                li.appendChild(checkbox);
-                li.appendChild(label);
-
-                document.getElementById("todoList").appendChild(li);
-                document.getElementById("todoInput").value = "";
-                updateTaskCounter();
-            }
-        }
-
-        function clearCompleted() {
-            var list = document.getElementById('todoList');
-            var items = list.getElementsByTagName("li");
-            for(var i = 0; i < items.length; i++) {
-                if(items[i].firstChild.checked) {
-                    list.removeChild(items[i]);
-                    i--;
-                }
-            }
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = 'task-' + new Date().getTime(); // Generate a unique ID
+        checkbox.onchange = function() {
+            this.nextSibling.style.textDecoration = this.checked ? "line-through" : "none";
             updateTaskCounter();
-        }
+            saveTodos();
+        };
 
-        function updateTaskCounter() {
-        var list = document.getElementById('todoList');
-        var items = list.getElementsByTagName("li");
-        var uncheckedCount = 0;
-        for(var i = 0; i < items.length; i++) {
-            if(!items[i].firstChild.checked) {
-                uncheckedCount++;
-            }
-        }
-        var itemText = uncheckedCount === 1 ? "item" : "items";
-        document.getElementById("taskCounter").innerText = uncheckedCount + " " + itemText + " left";
+        var label = document.createElement("label");
+        label.innerHTML = inputValue;
+        label.setAttribute('for', checkbox.id); // Associate label with checkbox using the ID
+
+        li.appendChild(checkbox);
+        li.appendChild(label);
+
+        document.getElementById("todoList").appendChild(li);
+        document.getElementById("todoInput").value = "";
+        updateTaskCounter();
+        saveTodos();
     }
+}
 
+function clearCompleted() {
+    var list = document.getElementById('todoList');
+    var items = list.getElementsByTagName("li");
+    for(var i = 0; i < items.length; i++) {
+        if(items[i].firstChild.checked) {
+            list.removeChild(items[i]);
+            i--;
+        }
+    }
     updateTaskCounter();
+    saveTodos();
+}
+
+function updateTaskCounter() {
+    var list = document.getElementById('todoList');
+    var items = list.getElementsByTagName("li");
+    var uncheckedCount = 0;
+    for(var i = 0; i < items.length; i++) {
+        if(!items[i].firstChild.checked) {
+            uncheckedCount++;
+        }
+    }
+    var itemText = uncheckedCount === 1 ? "item" : "items";
+    document.getElementById("taskCounter").innerText = uncheckedCount + " " + itemText + " left";
+}
+
+function saveTodos() {
+    var list = document.getElementById('todoList');
+    var items = list.getElementsByTagName("li");
+    var todos = [];
+    for(var i = 0; i < items.length; i++) {
+        todos.push({
+            id: items[i].firstChild.id,
+            description: items[i].firstChild.nextSibling.innerHTML,
+            completed: items[i].firstChild.checked
+        });
+    }
+    localStorage.setItem('todos', JSON.stringify(todos));
+}
+
+function loadTodos() {
+    var todos = JSON.parse(localStorage.getItem('todos'));
+    if (todos) {
+        var list = document.getElementById('todoList');
+        list.innerHTML = '';
+        todos.forEach(function(todo) {
+            var li = document.createElement("li");
+            li.style.listStyleType = "none";
+
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = todo.id;
+            checkbox.checked = todo.completed;
+            checkbox.onchange = function() {
+                this.nextSibling.style.textDecoration = this.checked ? "line-through" : "none";
+                updateTaskCounter();
+                saveTodos();
+            };
+
+            var label = document.createElement("label");
+            label.innerHTML = todo.description;
+            label.setAttribute('for', checkbox.id);
+
+            li.appendChild(checkbox);
+            li.appendChild(label);
+
+            list.appendChild(li);
+        });
+        updateTaskCounter();
+    }
+}
+
+loadTodos();
+
     </script>
 </body>
 </html>
