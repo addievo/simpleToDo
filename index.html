@@ -4,93 +4,109 @@
     <title>Todo List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+       .logo {
+        width: 20%;
+        height: auto;
+         align: left;
+    }
+
+    @media (max-width: 600px) {
+        .logo {
+            width: 50%;
+        }
+    }
+
+    body {
+        background-color: #121212;
+        font-family: Arial, sans-serif;
+        padding: 0 5%;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    h1 {
+        text-align: center;
+        font-family: "Helvetica Neue", sans-serif;
+        color: plum;
+    }
+
+    #taskCounter {
+        font-family: "Helvetica Neue", sans-serif;
+        text-align: right;
+        margin-right: 2%;
+        color: #DDDDDD;
+        font-size: 125%;
+    }
+
+    #todoInput {
+        width: 100%;
+        padding: 10px 2%;
+        margin: 5px 0;
+        box-sizing: border-box;
+        font-size: 16px;
+        color: #000000;
+    }
+
+    #todoList {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #todoList li {
+        padding: 10px 2%;
+        background-color: #fff;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    #todoList li label {
+        margin-left: 10px;
+        cursor: pointer;
+        color: #000000;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px 2%;
+        margin: 5px 0;
+        background-color: #FF6347;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover {
+        background-color: #FF4500;
+    }
+
+    @media (max-width: 600px) {
         body {
-            background-color: #3c3c3c;
-            font-family: Arial, sans-serif;
-            padding: 0 5%;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            padding: 0 3%;
         }
 
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
+        h1, #todoInput, #todoList li label, button {
+            font-size: 18px;
         }
-
-        h1 {
-            text-align: center;
-            font-family: "Helvetica Neue", sans-serif;
-            color: plum;
-        }
-
-        #taskCounter {
-            text-align: right;
-            margin-right: 2%;
-            color: #F5F5F5;
-        }
-
-        #todoInput {
-            width: 100%;
-            padding: 10px 2%;
-            margin: 5px 0;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        #todoList {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #todoList li {
-            padding: 10px 2%;
-            background-color: #fff;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-        }
-
-        #todoList li label {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-
-        button {
-            display: block;
-            width: 100%;
-            padding: 10px 2%;
-            margin: 5px 0;
-            background-color: #FF6347;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #FF4500;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 0 3%;
-            }
-
-            h1, #todoInput, #todoList li label, button {
-                font-size: 18px;
-            }
-        }
+    }
     </style>
 </head>
 <body>
     <h1>todos</h1>
     <a href="https://Adityav.au">
-    <img src="img/logo.png" alt="Adityav Logo" style="width: 20%; height: auto">
+    <img class="logo" src="img/logo.png" alt="Adityav Logo" style="width: 20%; height: auto">
 </a>
     <div class="main-content">
         <p id="taskCounter"></p>
