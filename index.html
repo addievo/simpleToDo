@@ -2,10 +2,11 @@
 <html>
 <head>
     <title>Todo List</title>
-    <style>
+<style>
         body {
             background-color: #f0f0f0;
             font-family: Arial, sans-serif;
+            padding: 0 5%;
         }
 
         h1 {
@@ -16,12 +17,12 @@
 
         #taskCounter {
             text-align: right;
-            margin-right: 20px;
+            margin-right: 2%;
         }
 
         #todoInput {
             width: 100%;
-            padding: 10px 20px;
+            padding: 10px 2%;
             margin: 5px 0;
             box-sizing: border-box;
             font-size: 16px;
@@ -34,7 +35,7 @@
         }
 
         #todoList li {
-            padding: 10px;
+            padding: 10px 2%;
             background-color: #fff;
             margin-bottom: 5px;
             border-radius: 5px;
@@ -50,7 +51,7 @@
         button {
             display: block;
             width: 100%;
-            padding: 10px 20px;
+            padding: 10px 2%;
             margin: 5px 0;
             background-color: #FF6347;
             color: white;
@@ -64,24 +65,10 @@
             background-color: #FF4500;
         }
 
-        #todoList li input[type=checkbox] {
-            display: none;
-        }
-
-        #todoList li input[type=checkbox] + label::before {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #000;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-        #todoList li input[type=checkbox]:checked + label::before {
-            background: radial-gradient(circle, #008000 1px, #fff 1px);
-            border: 2px solid #008000;
+        @media (max-width: 600px) {
+            body {
+                padding: 0 3%;
+            }
         }
     </style>
 </head>
@@ -91,7 +78,6 @@
     <input id="todoInput" type="text" placeholder="What needs to be done?" onkeydown="if (event.keyCode === 13) newTodo()">
     <ul id="todoList"></ul>
     <button onclick="clearCompleted()">Clear Completed</button>
-
     <script>
 function newTodo() {
     var inputValue = document.getElementById("todoInput").value;
