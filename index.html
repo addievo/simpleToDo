@@ -4,18 +4,15 @@
     <title>ToDo List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- General tags -->
     <meta name="title" content="To Do List">
     <meta name="description" content="A simple, intuitive To Do list to help you keep track of your tasks.">
 
-    <!-- Open Graph tags -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://todo.adityav.au">
     <meta property="og:title" content="To Do List">
     <meta property="og:description" content="A simple, intuitive To Do list to help you keep track of your tasks.">
     <meta property="og:image" content="https://todo.adityav.au/img/favicon.png">
 
-    <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://todo.adityav.au">
     <meta name="twitter:title" content="To Do List">
@@ -26,16 +23,14 @@
     <link rel="apple-touch-icon" href="img/favicon.png">
 
     <style>
-       .logo {
+    .logo {
         width: 20%;
         height: auto;
         float: left;
     }
 
     @media (max-width: 390px) {
-        .logo {
-            width: 80%;
-        }
+        .logo { width: 80%; }
     }
 
     body {
@@ -63,10 +58,9 @@
         font-family: "Helvetica Neue", sans-serif;
         text-align: right;
         margin-right: 2%;
-              color: plum;
-
+        color: plum;
         font-size: 125%;
-      float: right;
+        float: right;
     }
 
     #todoInput {
@@ -75,7 +69,7 @@
         margin: 5px 0;
         box-sizing: border-box;
         font-size: 16px;
-        color: #000000;
+        color: #000;
     }
 
     #todoList {
@@ -93,10 +87,25 @@
         align-items: center;
     }
 
+    #todoList li.category-header {
+        background-color: transparent;
+        color: plum;
+        font-weight: bold;
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 18px 2% 5px 2%;
+        border-bottom: 1px solid #2a2a2a;
+        margin-bottom: 4px;
+        border-radius: 0;
+        cursor: default;
+    }
+
     #todoList li label {
         margin-left: 10px;
         cursor: pointer;
-        color: #000000;
+        color: #000;
     }
 
     button {
@@ -117,137 +126,246 @@
         background-color: #FF4500;
     }
 
-    @media (max-width: 600px) {
-        body {
-            padding: 0 3%;
-        }
+    .button-row {
+        display: flex;
+        gap: 5px;
+    }
 
-        h1, #todoInput, #todoList li label, button {
-            font-size: 18px;
-        }
+    .button-row button {
+        flex: 1;
+        margin: 5px 0;
+    }
+
+    #mdFileInput { display: none; }
+
+    #mdPasteArea {
+        display: none;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 2%;
+        margin: 5px 0;
+        min-height: 110px;
+        font-size: 13px;
+        font-family: monospace;
+        color: #000;
+        border: 2px solid plum;
+        border-radius: 5px;
+        resize: vertical;
+    }
+
+    #mdPasteArea.active { display: block; }
+
+    #btnPaste.active {
+        background-color: #FF4500;
+        color: white;
+    }
+
+    @media (max-width: 600px) {
+        body { padding: 0 3%; }
+        h1, #todoInput, #todoList li label, button { font-size: 18px; }
     }
     </style>
 </head>
 <body>
     <h1>todos</h1>
     <a href="https://Adityav.au">
-    <img class="logo" src="https://adityav.au/dist/img/logo.png" alt="Adityav Logo" style="width: 20%; height: auto">
-</a>
+        <img class="logo" src="https://adityav.au/dist/img/logo.png" alt="Adityav Logo">
+    </a>
     <div class="main-content">
         <h3 id="taskCounter"></h3>
-        <input id="todoInput" type="text" placeholder="What needs to be done?" onkeydown="if (event.keyCode === 13) newTodo()">
+        <input id="todoInput" type="text" placeholder="What needs to be done?">
         <ul id="todoList"></ul>
-        <button onclick="clearCompleted()">Clear Completed</button>
+        <input type="file" id="mdFileInput" accept=".md,.markdown,text/markdown">
+        <div class="button-row">
+            <button id="btnImport">Import .md</button>
+            <button id="btnPaste">Paste .md</button>
+        </div>
+        <textarea id="mdPasteArea" placeholder="Paste markdown here…"></textarea>
+        <div class="button-row">
+            <button id="btnClearCompleted">Clear Completed</button>
+            <button id="btnClearAll">Clear All</button>
+        </div>
     </div>
+
     <script>
-function newTodo() {
-    var inputValue = document.getElementById("todoInput").value;
-    if (inputValue === '') {
-        alert("Write something!");
-    } else {
-        var li = document.createElement("li");
-        li.style.listStyleType = "none";
+    // --- Storage ---
 
-        var checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.id = 'task-' + new Date().getTime(); // Generate a unique ID
-        checkbox.onchange = function() {
-            this.nextSibling.style.textDecoration = this.checked ? "line-through" : "none";
+    const getTodos = () => JSON.parse(localStorage.getItem('todos')) || [];
+    const setTodos = todos => localStorage.setItem('todos', JSON.stringify(todos));
+
+    const makeId = () => `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // --- Render ---
+
+    function createTodoLi(todo) {
+        const li = document.createElement('li');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = todo.id;
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', function () {
+            const todos = getTodos();
+            const t = todos.find(x => x.id === todo.id);
+            if (t) { t.completed = this.checked; setTodos(todos); }
+            label.style.textDecoration = this.checked ? 'line-through' : 'none';
             updateTaskCounter();
-            saveTodos();
-        };
-
-        var label = document.createElement("label");
-        label.innerHTML = inputValue;
-        label.setAttribute('for', checkbox.id); // Associate label with checkbox using the ID
-
-        li.appendChild(checkbox);
-        li.appendChild(label);
-
-        document.getElementById("todoList").appendChild(li);
-        document.getElementById("todoInput").value = "";
-        updateTaskCounter();
-        saveTodos();
-    }
-}
-
-function clearCompleted() {
-    var list = document.getElementById('todoList');
-    var items = list.getElementsByTagName("li");
-    for(var i = 0; i < items.length; i++) {
-        if(items[i].firstChild.checked) {
-            list.removeChild(items[i]);
-            i--;
-        }
-    }
-    updateTaskCounter();
-    saveTodos();
-}
-
-function updateTaskCounter() {
-    var list = document.getElementById('todoList');
-    var items = list.getElementsByTagName("li");
-    var uncheckedCount = 0;
-    for(var i = 0; i < items.length; i++) {
-        if(!items[i].firstChild.checked) {
-            uncheckedCount++;
-        }
-    }
-    var itemText = uncheckedCount === 1 ? "item" : "items";
-    document.getElementById("taskCounter").innerText = uncheckedCount + " " + itemText + " left";
-}
-
-function saveTodos() {
-    var list = document.getElementById('todoList');
-    var items = list.getElementsByTagName("li");
-    var todos = [];
-    for(var i = 0; i < items.length; i++) {
-        todos.push({
-            id: items[i].firstChild.id,
-            description: items[i].firstChild.nextSibling.innerHTML,
-            completed: items[i].firstChild.checked
         });
-    }
-    localStorage.setItem('todos', JSON.stringify(todos));
-}
 
-function loadTodos() {
-    var todos = JSON.parse(localStorage.getItem('todos'));
-    if (todos) {
-        var list = document.getElementById('todoList');
+        const label = document.createElement('label');
+        label.textContent = todo.description;
+        label.setAttribute('for', todo.id);
+        label.style.textDecoration = todo.completed ? 'line-through' : 'none';
+
+        li.append(checkbox, label);
+        return li;
+    }
+
+    function renderTodos() {
+        const todos = getTodos();
+        const list = document.getElementById('todoList');
         list.innerHTML = '';
-        todos.forEach(function(todo) {
-            var li = document.createElement("li");
-            li.style.listStyleType = "none";
 
-            var checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.id = todo.id;
-            checkbox.checked = todo.completed;
-            checkbox.onchange = function() {
-                this.nextSibling.style.textDecoration = this.checked ? "line-through" : "none";
-                updateTaskCounter();
-                saveTodos();
-            };
+        const uncategorized = todos.filter(t => !t.category);
+        const categorized   = todos.filter(t =>  t.category);
+        const categories    = [...new Set(categorized.map(t => t.category))];
 
-            var label = document.createElement("label");
-            label.innerHTML = todo.description;
-            label.setAttribute('for', checkbox.id);
-            if(todo.completed){
-                label.style.textDecoration = "line-through";
-            }
+        uncategorized.forEach(todo => list.appendChild(createTodoLi(todo)));
 
-            li.appendChild(checkbox);
-            li.appendChild(label);
+        categories.forEach(cat => {
+            const header = document.createElement('li');
+            header.className = 'category-header';
+            header.textContent = cat;
+            list.appendChild(header);
 
-            list.appendChild(li);
+            categorized
+                .filter(t => t.category === cat)
+                .forEach(todo => list.appendChild(createTodoLi(todo)));
         });
+
         updateTaskCounter();
     }
-}
 
-loadTodos();
+    function updateTaskCounter() {
+        const count = getTodos().filter(t => !t.completed).length;
+        document.getElementById('taskCounter').textContent =
+            `${count} ${count === 1 ? 'item' : 'items'} left`;
+    }
 
+    // --- Actions ---
+
+    function newTodo() {
+        const input = document.getElementById('todoInput');
+        const description = input.value.trim();
+        if (!description) { alert('Write something!'); return; }
+        setTodos([...getTodos(), { id: makeId(), description, completed: false, category: '' }]);
+        input.value = '';
+        renderTodos();
+    }
+
+    function clearCompleted() {
+        setTodos(getTodos().filter(t => !t.completed));
+        renderTodos();
+    }
+
+    function clearAll() {
+        if (!confirm('Clear all todos? This cannot be undone.')) return;
+        setTodos([]);
+        renderTodos();
+    }
+
+    // --- Markdown import ---
+
+    function parseMd(text) {
+        let currentCategory = '';
+        return text.split('\n').reduce((todos, line) => {
+            const heading = line.match(/^#{2,}\s+(.+)/);
+            if (heading) {
+                currentCategory = heading[1].replace(/\*\*/g, '').trim();
+                return todos;
+            }
+            const unchecked = line.match(/^\s*[-*]\s+\[ \]\s+(.+)/);
+            const checked   = line.match(/^\s*[-*]\s+\[[xX]\]\s+(.+)/);
+            if (unchecked || checked) {
+                todos.push({
+                    id: makeId(),
+                    description: (unchecked || checked)[1].trim(),
+                    completed: !!checked,
+                    category: currentCategory,
+                });
+            }
+            return todos;
+        }, []);
+    }
+
+    function importMd(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const imported = parseMd(e.target.result);
+            event.target.value = '';
+            if (!imported.length) { alert('No checklist items found in the file.'); return; }
+            setTodos([...getTodos(), ...imported]);
+            renderTodos();
+            alert(`Imported ${imported.length} item${imported.length === 1 ? '' : 's'}.`);
+        };
+        reader.readAsText(file);
+    }
+
+    // --- Init ---
+
+    // Migrate todos saved before category field existed
+    const stored = getTodos();
+    if (stored.some(t => t.category === undefined)) {
+        setTodos(stored.map(t => ({ ...t, category: t.category ?? '' })));
+    }
+
+    function importPasted(text) {
+        const imported = parseMd(text);
+        if (!imported.length) { alert('No checklist items found.'); return; }
+        setTodos([...getTodos(), ...imported]);
+        renderTodos();
+        alert(`Imported ${imported.length} item${imported.length === 1 ? '' : 's'}.`);
+    }
+
+    const pasteArea = document.getElementById('mdPasteArea');
+    const btnPaste  = document.getElementById('btnPaste');
+
+    btnPaste.addEventListener('click', () => {
+        const opening = !pasteArea.classList.contains('active');
+        pasteArea.classList.toggle('active');
+        btnPaste.classList.toggle('active');
+        if (opening) pasteArea.focus();
+    });
+
+    // Intercept Ctrl+V / right-click paste — import immediately, keep textarea hidden
+    pasteArea.addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        pasteArea.classList.remove('active');
+        btnPaste.classList.remove('active');
+        importPasted(text);
+    });
+
+    // Also support typing/editing then pressing Enter to import
+    pasteArea.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            const text = pasteArea.value;
+            pasteArea.value = '';
+            pasteArea.classList.remove('active');
+            btnPaste.classList.remove('active');
+            importPasted(text);
+        }
+    });
+
+    document.getElementById('todoInput').addEventListener('keydown', e => { if (e.key === 'Enter') newTodo(); });
+    document.getElementById('btnImport').addEventListener('click', () => document.getElementById('mdFileInput').click());
+    document.getElementById('mdFileInput').addEventListener('change', importMd);
+    document.getElementById('btnClearCompleted').addEventListener('click', clearCompleted);
+    document.getElementById('btnClearAll').addEventListener('click', clearAll);
+
+    renderTodos();
     </script>
 </body>
 </html>
